@@ -49,11 +49,11 @@ class Smog:public Pocisk
 {
     int biezaceObrazenia;
     public:
-     Smog()
-     {
+    Smog()
+    {
         biezaceObrazenia = 10;
-     }
-     virtual int obrazenia()
+    }
+    virtual int obrazenia()
     {
         cout<<"Smog::obrazenia()\n";
         return biezaceObrazenia;
@@ -65,6 +65,20 @@ class Smog:public Pocisk
         Smog* kopia = new Smog;
         (*kopia).biezaceObrazenia= (*this).biezaceObrazenia;
         return kopia;
+    }
+};
+
+class Error{};
+class Error_1 : public Error
+{
+    public:
+    Error_1(int BladPocisku)
+    {
+        if (BladPocisku>30)
+        {
+            cout<<"\n\n== ERROR ==\nMozesz miec maksymalnie 30 pociskow!";
+            exit(1);
+        }
     }
 };
 
@@ -86,6 +100,7 @@ class Magazynek
     //=============================================================================================
     Magazynek(Magazynek &wzor)                 ///////////////KONSTRUKTOR KOPIUJACY////////////////
     {
+        cout<<"\noperator magazynek\n";
         lacznie=0;
         for(int i=0;i<30;i++)
         {
@@ -96,18 +111,19 @@ class Magazynek
            naboje[i]=(*(wzor.naboje[i])).Clone();
         }
         numerPocisku = wzor.numerPocisku;
+
     }
     //=============================================================================================
     void Wybierz()
     {
-        int wybor;
+        int wybor=0;
         do
         {
             cout<<"Wybierz rodzaj naboi\n1 Zapalajacy\n2 Smog\n3 Odlamkowy\n";
             cin>>wybor;
             if(wybor==1)
               {
-                naboje[numerPocisku] = new Zapalajacy;
+                naboje[numerPocisku] =new Zapalajacy;
                 numerPocisku++;
               }
 
@@ -123,6 +139,8 @@ class Magazynek
                 numerPocisku++;
               }
           }while(wybor>3);
+      if(numerPocisku>30)
+      throw Error_1(numerPocisku);
     }
     //=============================================================================================
     int obrazenia_seri()
@@ -139,7 +157,6 @@ class Magazynek
         for(int i=0;i<numerPocisku;i++)
         {
                 delete naboje[i];
-
                 cout<<"\nDestruktor "<<i<<" dziala! ";
         }
     }
@@ -174,15 +191,20 @@ class Karabin
     //=============================================================================================
     Karabin(int ilePociskow)
     {
-        liczbaPociskow = ilePociskow;
-        if(30<liczbaPociskow)
+        while(ilePociskow>30)
         {
             cout << "\nMagazybek miesci maksymalnie 30 naboi!\n";
-            cout<<" \nWybierz liczbe naboi, max 30 \n  ";
             cin >> ilePociskow;
-            liczbaPociskow=ilePociskow;
         }
+        liczbaPociskow=ilePociskow;
         wskaz_magazynek=new Magazynek;
+    }
+    //=============================================================================================
+    Karabin(Karabin &wzor)                                   ///////////KONSTRUKTOR KOPIUJACY//////
+    {
+        cout<<"\noperator karabn\n";
+        wskaz_magazynek=new Magazynek;
+        *wskaz_magazynek=*(wzor.wskaz_magazynek);
     }
     //=============================================================================================
     void Wybierz()
@@ -203,13 +225,7 @@ class Karabin
         delete wskaz_magazynek;
         cout<<"\nDestruktor Karabinu dziala! ";
     }
-    //=============================================================================================
-    Karabin(Karabin &wzor)                                   ///////////KONSTRUKTOR KOPIUJACY//////
-    {
-        cout<<"\noperator karabn\n";
-        wskaz_magazynek=new Magazynek;
-        *wskaz_magazynek=*(wzor.wskaz_magazynek);
-    }
+
     //=============================================================================================
     Karabin&operator=(Karabin &wzor)                         /////////oPERATOR PRZYPISANIA/////////
     {
