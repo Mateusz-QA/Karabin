@@ -9,6 +9,7 @@ public:
     virtual int obrazenia()=0;
     virtual ~Pocisk(){};
     virtual Pocisk * Clone()=0;
+    virtual int typ(){return 0;}
 };
 
 class Zapalajacy:public Pocisk
@@ -26,6 +27,7 @@ public:
         cout<<"Zapalajacy::Clone()\n";
         return new Zapalajacy;
     }
+    virtual int typ(){return 1;}
 };
 
 class Odlamkowy:public Pocisk
@@ -43,6 +45,7 @@ public:
         cout<<"Odlamkowy::Clone()\n";
         return new Odlamkowy;
     }
+    virtual int typ(){return 2;}
 };
 
 class Smog:public Pocisk
@@ -66,20 +69,62 @@ class Smog:public Pocisk
         (*kopia).biezaceObrazenia= (*this).biezaceObrazenia;
         return kopia;
     }
+    virtual int typ(){return 3;}
 };
 
-class Error{};
-class Error_1 : public Error
-{
-    public:
-    Error_1(int BladPocisku)
-    {
-        if (BladPocisku>30)
-        {
-            cout<<"\n\n== ERROR ==\nMozesz miec maksymalnie 30 pociskow!";
-            exit(1);
-        }
-    }
+class Blad{
+  protected:
+      string rodzaj_bledu="none";
+      string inf_bledu;
+  public:
+      Blad()
+      {
+          inf_bledu="\nWystapil blad!";
+      }
+      virtual string Inf_bledu()
+      {
+          return inf_bledu;
+      }
+      virtual int Kod_bledu() = 0;
+};
+
+class Blad_amunicji : public Blad{
+      string rodzaj_bledu="0x01";
+  public:
+      Blad_amunicji()
+      {
+          //inf_bledu<<"\n\n== Blad "<<rodzaj_bledu<<" ==\nTwoj numer naobju nie istnieje.\n";
+          inf_bledu = "Blad "+ rodzaj_bledu + " ==\nTwoj numer naobju nie istnieje.\n";
+      }
+      int Kod_bledu()
+      {
+          return 1;
+      }
+};
+class Blad_2 : public Blad{
+      string rodzaj_bledu="0x02";
+  public:
+      Blad_2()
+      {
+          cout<<"\n\n== Blad " + rodzaj_bledu +"==\nNieprawidlowy znak.\n";
+      }
+      int Kod_bledu()
+      {
+          return 2;
+      }
+};
+
+class Blad_3 : public Blad{
+      string rodzaj_bledu="0x03";
+  public:
+      Blad_3()
+      {
+          cout<<"\n== Blad "+ rodzaj_bledu +"==\nMagazynek nie moze byc pusty, moze miec max 30 kul\n";
+      }
+      int Kod_bledu()
+      {
+          return 3;
+      }
 };
 
 class Magazynek
@@ -111,7 +156,6 @@ class Magazynek
            naboje[i]=(*(wzor.naboje[i])).Clone();
         }
         numerPocisku = wzor.numerPocisku;
-
     }
     //=============================================================================================
     void Wybierz()
@@ -121,6 +165,8 @@ class Magazynek
         {
             cout<<"Wybierz rodzaj naboi\n1 Zapalajacy\n2 Smog\n3 Odlamkowy\n";
             cin>>wybor;
+            if ( wybor > 3 )
+                throw Blad_amunicji();
             if(wybor==1)
               {
                 naboje[numerPocisku] =new Zapalajacy;
@@ -139,9 +185,9 @@ class Magazynek
                 numerPocisku++;
               }
           }while(wybor>3);
-      if(numerPocisku>30)
-      throw Error_1(numerPocisku);
-    }
+        if(wybor<=0)
+            throw Blad_2();
+          }
     //=============================================================================================
     int obrazenia_seri()
     {
@@ -178,9 +224,50 @@ class Magazynek
            }
 
             numerPocisku=wzor.numerPocisku;
-           }
-          return *this;
+        }
+        return *this;
     }
+/*
+    Magazynek& operator=(Magazynek &wzor)                   /////////OPERATOR PRZYPISANIA//////////
+        {
+        if(this!=&wzor)
+        {
+        lacznie=0;
+            for(int i=0;i<numerPocisku;i++)
+            {
+            delete naboje[i];
+            naboje[i] = NULL;
+            cout<<"\nDestruktor "<<i<<" dziala! ";
+            }
+                for(int i=0;i<wzor.numerPocisku;i++)
+                {
+                if(wzor.naboje[i]->typ()==1)
+                    {
+                    naboje[i]=new Zapalajacy ;
+                    }
+                        else
+                        {
+                            if(wzor.naboje[i]->typ()==2)
+                            {
+                            naboje[i]=new Odlamkowy ;
+                            }
+                                else
+                                {
+                                    if(wzor.naboje[i]->typ()==1)
+                                    {
+                                    naboje[3]=new Smog ;
+                                    }
+                                }
+                        }
+                }
+         numerPocisku=wzor.numerPocisku;
+
+        }
+
+    return *this;
+    }
+*/
+
 };
 
 class Karabin
@@ -191,11 +278,9 @@ class Karabin
     //=============================================================================================
     Karabin(int ilePociskow)
     {
-        while(ilePociskow>30)
-        {
-            cout << "\nMagazybek miesci maksymalnie 30 naboi!\n";
-            cin >> ilePociskow;
-        }
+        if ( ( ilePociskow > 30 ) or ( ilePociskow <= 0 ) )
+            throw Blad_3();
+
         liczbaPociskow=ilePociskow;
         wskaz_magazynek=new Magazynek;
     }
@@ -245,15 +330,27 @@ int main()
     int ile;
     cout<<"\nStworz swoj wlasny Karabin ! \nWybierz liczbe naboi, max 30 \n  ";
     cin>>ile;
-    Karabin wskaz_magazynek(ile);
-    wskaz_magazynek.Wybierz();
-    cout<< " \nZadales "<<wskaz_magazynek.obrazenia_seri()<<" obrazen!";
-    cout<<"\nII - Stworz swoj wlasny Karabin ! \nWybierz liczbe naboi, max 30 \n  ";
-    cin>>ile;
-    Karabin obj1(ile);
-    obj1.Wybierz();
-    cout<< " \nOBJ1::Zadales "<<obj1.obrazenia_seri()<<" obrazen!";
-    obj1 = wskaz_magazynek;
-    cout<< " \nOBJ1_II::Zadales "<<obj1.obrazenia_seri()<<" obrazen!";
-    return 0;
+    try
+    {
+        Karabin wskaz_magazynek(ile);
+        wskaz_magazynek.Wybierz();
+        cout<< " \nZadales "<<wskaz_magazynek.obrazenia_seri()<<" obrazen!";
+
+
+        cout<<"\nII - Stworz swoj wlasny Karabin ! \nWybierz liczbe naboi, max 30 \n  ";
+        cin>>ile;
+        Karabin obj1(ile);
+        obj1.Wybierz();
+        cout<< " \nOBJ1::Zadales "<<obj1.obrazenia_seri()<<" obrazen!";
+        obj1 = wskaz_magazynek;
+        cout<< " \nOBJ1_II::Zadales "<<obj1.obrazenia_seri()<<" obrazen!";
+    }
+    catch (Blad & msg)
+    {
+        msg.Inf_bledu();
+        return msg.Kod_bledu();
+         //return 3;cout <<"BLAD!"<<msg.Kod_bledu()<<'\n';
+
+    }
 }
+
