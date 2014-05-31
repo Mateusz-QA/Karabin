@@ -321,3 +321,4 @@ int main()
         return msg.Kod_bledu();
     }
 }
+
