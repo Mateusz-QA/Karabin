@@ -1,5 +1,6 @@
 #include <iostream>
-#include <stdlib.h>
+#include <sstream>
+#include <windows.h>
 
 using namespace std;
 
@@ -72,7 +73,7 @@ class Smog:public Pocisk
     virtual int typ(){return 3;}
 };
 
-class Blad{
+/*class Blad{
   protected:
       string rodzaj_bledu="none";
       string inf_bledu;
@@ -125,7 +126,77 @@ class Blad_3 : public Blad{
       {
           return 3;
       }
+};*/
+enum Typ_bledu {
+    Critical , Fatal , Warning
 };
+
+class Blad {
+      int Typ_bledu_wybor;
+  public:
+      Blad(Typ_bledu Typ_bledu_wybor) {
+          this->Typ_bledu_wybor = Typ_bledu_wybor;
+      }
+      virtual string Powod_bledu() = 0;
+      virtual int Kod_bledu() = 0;
+      virtual string Rodzaj_bledu() {
+          return "##";
+      }
+      virtual string getErrorType() {
+          stringstream stream;
+          switch ( Typ_bledu_wybor ) {
+            case Critical:
+                stream << "Critical ERROR 0x";
+                break;
+            case Fatal:
+                stream << "Fatal 0x";
+                break;
+            case Warning:
+                stream << "Warning 0x";
+                break;
+            default:
+                throw "Unknown Typ_bledu!";
+        }
+        return stream.str();
+      }
+      virtual string Inf_bledu() {
+          stringstream stream;
+          stream << Rodzaj_bledu() << getErrorType() << std::hex<<Kod_bledu() << Rodzaj_bledu()
+                 << "\n" << Powod_bledu() << "\n\n";
+          return stream.str();
+      }
+};
+class Blad_amunicji : public Blad {
+  public:
+      Blad_amunicji() : Blad(Critical) {}
+      int Kod_bledu() {
+          return 18;
+      }
+      string Powod_bledu() {
+          return "woj numer naobju nie istnieje.";
+      }
+};
+class Blad_2 : public Blad {
+  public:
+      Blad_2() : Blad(Fatal) {}
+      int Kod_bledu() {
+          return 28;
+      }
+      string Powod_bledu() {
+          return "Nieprawidlowy znak.";
+      }
+};
+class Blad_3 : public Blad {
+  public:
+      Blad_3() : Blad(Warning) {}
+      int Kod_bledu() {
+          return 38;
+      }
+      string Powod_bledu() {
+          return "Magazynek nie moze byc pusty, moze miec max 30 kul.";
+      }
+};
+
 
 class Magazynek
 {
@@ -347,7 +418,11 @@ int main()
     }
     catch (Blad & msg)
     {
-        msg.Inf_bledu();
+
+
+
+
+        cout<< msg.Inf_bledu();
         return msg.Kod_bledu();
          //return 3;cout <<"BLAD!"<<msg.Kod_bledu()<<'\n';
 
