@@ -309,17 +309,15 @@ int main()
         cout<< " \nZadales "<<wskaz_magazynek.obrazenia_seri()<<" obrazen!";
         cout<<"\nII - Stworz swoj wlasny Karabin ! \nWybierz liczbe naboi, max 30 \n  ";
         cin>>ile;
-        Karabin obj1(ile);
-        obj1.Wybierz();
-        cout<< " \nOBJ1::Zadales "<<obj1.obrazenia_seri()<<" obrazen!";
-        obj1 = wskaz_magazynek;
-        cout<< " \nOBJ1_II::Zadales "<<obj1.obrazenia_seri()<<" obrazen!";
+        Karabin wskKarabin(ile);
+        wskKarabin.Wybierz();
+        cout<< " \nOBJ1::Zadales "<<wskKarabin.obrazenia_seri()<<" obrazen!";
+        wskKarabin = wskaz_magazynek;
+        cout<< " \nOBJ1_II::Zadales "<<wskKarabin.obrazenia_seri()<<" obrazen!";
     }
     catch (Blad & msg)
     {
         cout<< msg.Inf_bledu();
         return msg.Kod_bledu();
-         //return 3;cout <<"BLAD!"<<msg.Kod_bledu()<<'\n';
     }
 }
-
