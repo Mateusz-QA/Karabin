@@ -73,60 +73,6 @@ class Smog:public Pocisk
     virtual int typ(){return 3;}
 };
 
-/*class Blad{
-  protected:
-      string rodzaj_bledu="none";
-      string inf_bledu;
-  public:
-      Blad()
-      {
-          inf_bledu="\nWystapil blad!";
-      }
-      virtual string Inf_bledu()
-      {
-          return inf_bledu;
-      }
-      virtual int Kod_bledu() = 0;
-};
-
-class Blad_amunicji : public Blad{
-      string rodzaj_bledu="0x01";
-  public:
-      Blad_amunicji()
-      {
-          //inf_bledu<<"\n\n== Blad "<<rodzaj_bledu<<" ==\nTwoj numer naobju nie istnieje.\n";
-          inf_bledu = "Blad "+ rodzaj_bledu + " ==\nTwoj numer naobju nie istnieje.\n";
-      }
-      int Kod_bledu()
-      {
-          return 1;
-      }
-};
-class Blad_2 : public Blad{
-      string rodzaj_bledu="0x02";
-  public:
-      Blad_2()
-      {
-          cout<<"\n\n== Blad " + rodzaj_bledu +"==\nNieprawidlowy znak.\n";
-      }
-      int Kod_bledu()
-      {
-          return 2;
-      }
-};
-
-class Blad_3 : public Blad{
-      string rodzaj_bledu="0x03";
-  public:
-      Blad_3()
-      {
-          cout<<"\n== Blad "+ rodzaj_bledu +"==\nMagazynek nie moze byc pusty, moze miec max 30 kul\n";
-      }
-      int Kod_bledu()
-      {
-          return 3;
-      }
-};*/
 enum Typ_bledu {
     Critical , Fatal , Warning
 };
@@ -142,26 +88,26 @@ class Blad {
       virtual string Rodzaj_bledu() {
           return "##";
       }
-      virtual string getErrorType() {
+      virtual string Wystapil_blad() {
           stringstream stream;
           switch ( Typ_bledu_wybor ) {
             case Critical:
-                stream << "Critical ERROR 0x";
+                stream << "\nCritical ERROR 0x";
                 break;
             case Fatal:
-                stream << "Fatal 0x";
+                stream << "\nFatal 0x";
                 break;
             case Warning:
-                stream << "Warning 0x";
+                stream << "\nWarning 0x";
                 break;
             default:
-                throw "Unknown Typ_bledu!";
+                throw "\nUnknown Typ_bledu!";
         }
         return stream.str();
       }
       virtual string Inf_bledu() {
           stringstream stream;
-          stream << Rodzaj_bledu() << getErrorType() << std::hex<<Kod_bledu() << Rodzaj_bledu()
+          stream << Rodzaj_bledu() << Wystapil_blad() << std::hex<<Kod_bledu() << Rodzaj_bledu()
                  << "\n" << Powod_bledu() << "\n\n";
           return stream.str();
       }
@@ -170,33 +116,32 @@ class Blad_amunicji : public Blad {
   public:
       Blad_amunicji() : Blad(Critical) {}
       int Kod_bledu() {
-          return 18;
+          return 12;
       }
       string Powod_bledu() {
-          return "woj numer naobju nie istnieje.";
+          return "Twoj numer naboju nie istnieje.";
       }
 };
-class Blad_2 : public Blad {
+class Blad_znak : public Blad {
   public:
-      Blad_2() : Blad(Fatal) {}
+      Blad_znak() : Blad(Fatal) {}
       int Kod_bledu() {
-          return 28;
+          return 13;
       }
       string Powod_bledu() {
           return "Nieprawidlowy znak.";
       }
 };
-class Blad_3 : public Blad {
+class Blad_pojemnosc : public Blad {
   public:
-      Blad_3() : Blad(Warning) {}
+      Blad_pojemnosc() : Blad(Warning) {}
       int Kod_bledu() {
-          return 38;
+          return 14;
       }
       string Powod_bledu() {
           return "Magazynek nie moze byc pusty, moze miec max 30 kul.";
       }
 };
-
 
 class Magazynek
 {
@@ -238,18 +183,17 @@ class Magazynek
             cin>>wybor;
             if ( wybor > 3 )
                 throw Blad_amunicji();
+
             if(wybor==1)
               {
                 naboje[numerPocisku] =new Zapalajacy;
                 numerPocisku++;
               }
-
             if(wybor==2)
               {
                 naboje[numerPocisku]=new Smog;
                 numerPocisku++;
               }
-
             if(wybor==3)
               {
                 naboje[numerPocisku]=new Odlamkowy;
@@ -257,7 +201,7 @@ class Magazynek
               }
           }while(wybor>3);
         if(wybor<=0)
-            throw Blad_2();
+            throw Blad_znak();
           }
     //=============================================================================================
     int obrazenia_seri()
@@ -293,52 +237,10 @@ class Magazynek
            {
                naboje[i]=(*(wzor.naboje[i])).Clone();
            }
-
             numerPocisku=wzor.numerPocisku;
         }
         return *this;
     }
-/*
-    Magazynek& operator=(Magazynek &wzor)                   /////////OPERATOR PRZYPISANIA//////////
-        {
-        if(this!=&wzor)
-        {
-        lacznie=0;
-            for(int i=0;i<numerPocisku;i++)
-            {
-            delete naboje[i];
-            naboje[i] = NULL;
-            cout<<"\nDestruktor "<<i<<" dziala! ";
-            }
-                for(int i=0;i<wzor.numerPocisku;i++)
-                {
-                if(wzor.naboje[i]->typ()==1)
-                    {
-                    naboje[i]=new Zapalajacy ;
-                    }
-                        else
-                        {
-                            if(wzor.naboje[i]->typ()==2)
-                            {
-                            naboje[i]=new Odlamkowy ;
-                            }
-                                else
-                                {
-                                    if(wzor.naboje[i]->typ()==1)
-                                    {
-                                    naboje[3]=new Smog ;
-                                    }
-                                }
-                        }
-                }
-         numerPocisku=wzor.numerPocisku;
-
-        }
-
-    return *this;
-    }
-*/
-
 };
 
 class Karabin
@@ -350,7 +252,7 @@ class Karabin
     Karabin(int ilePociskow)
     {
         if ( ( ilePociskow > 30 ) or ( ilePociskow <= 0 ) )
-            throw Blad_3();
+            throw Blad_pojemnosc();
 
         liczbaPociskow=ilePociskow;
         wskaz_magazynek=new Magazynek;
@@ -381,7 +283,6 @@ class Karabin
         delete wskaz_magazynek;
         cout<<"\nDestruktor Karabinu dziala! ";
     }
-
     //=============================================================================================
     Karabin&operator=(Karabin &wzor)                         /////////oPERATOR PRZYPISANIA/////////
     {
@@ -406,26 +307,17 @@ int main()
         Karabin wskaz_magazynek(ile);
         wskaz_magazynek.Wybierz();
         cout<< " \nZadales "<<wskaz_magazynek.obrazenia_seri()<<" obrazen!";
-
-
         cout<<"\nII - Stworz swoj wlasny Karabin ! \nWybierz liczbe naboi, max 30 \n  ";
         cin>>ile;
-        Karabin obj1(ile);
-        obj1.Wybierz();
-        cout<< " \nOBJ1::Zadales "<<obj1.obrazenia_seri()<<" obrazen!";
-        obj1 = wskaz_magazynek;
-        cout<< " \nOBJ1_II::Zadales "<<obj1.obrazenia_seri()<<" obrazen!";
+        Karabin wskKarabin(ile);
+        wskKarabin.Wybierz();
+        cout<< " \nOBJ1::Zadales "<<wskKarabin.obrazenia_seri()<<" obrazen!";
+        wskKarabin = wskaz_magazynek;
+        cout<< " \nOBJ1_II::Zadales "<<wskKarabin.obrazenia_seri()<<" obrazen!";
     }
     catch (Blad & msg)
     {
-
-
-
-
         cout<< msg.Inf_bledu();
         return msg.Kod_bledu();
-         //return 3;cout <<"BLAD!"<<msg.Kod_bledu()<<'\n';
-
     }
 }
-
